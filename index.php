@@ -12,7 +12,7 @@
 
 <body class="bg-slate-800">
     <?php
-    require 'navbar.php';
+    require 'components/navbar.php';
     ?>
     <section class="p-12">
         <h1 class="text-4xl text-center text-neutral-300 font-bold">Monie's Hotel</h1>
