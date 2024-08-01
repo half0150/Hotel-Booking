@@ -17,9 +17,10 @@
     <section class="p-12">
         <h1 class="text-4xl text-center text-neutral-300 font-bold">Monie's Hotel</h1>
         <div class="flex justify-center items-center p-24">
-            <img class="shadow-xl" src="images/receptionists-5975962_640.jpg" alt="receptionists">
+            <img class="shadow-xl size-max" src="images/receptionists-5975962_640.jpg" alt="receptionists">
         </div>
     </section>
+    <?php require 'components/footer.php'; ?>
 </body>
 
 </html>
