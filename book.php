@@ -15,7 +15,13 @@
         <h1 class="text-4xl text-center font-bold text-neutral-300 p-4">Book your room</h1>
     </section>
     <section>
-        <form action="" method="post" class="flex justify-center items-center p-4">
+        <form action="" method="post" class="flex flex-col justify-center items-center p-4">
+            <label class="text-neutral-300 text-lg">Name</label>
+            <input type="text" name="name" class="p-2 m-2 rounded-lg" required>
+            <label class="text-neutral-300 text-lg">Email</label>
+            <input type="email" name="email" class="p-2 m-2 rounded-lg" required>
+            <label class="text-neutral-300 text-lg">Phone</label>
+            <input type="tel" name="phone" class="p-2 m-2 rounded-lg" required>
             <label for="rooms" class="text-neutral-300 text-lg">Number of rooms:</label>
             <input type="number" name="rooms" id="rooms" class="p-2 m-2 rounded-lg" required>
             <label for="start_date" class="text-neutral-300 text-lg">Start:</label>
@@ -42,52 +48,44 @@
 
             $total = ($diff * $dayPrice) * $rooms;
             echo "<p class='text-center text-neutral-300'>Total price: dkk " . $total . "</p>";
+
+            return $total;
         } else {
             echo "<p class='text-center text-neutral-300'>You must book at least one room</p>";
+            return 0;
         }
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $rooms = intval($_POST['rooms']);
-        $startDate = $_POST['start_date'];
-        $endDate = $_POST['end_date'];
+    include 'db.php';
 
-        countPrice($startDate, $endDate, $rooms);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+        $phone = $_POST['phone'];
+        $rooms = intval($_POST['rooms']);
+        $start_date = $_POST['start_date'];
+        $end_date = $_POST['end_date'];
+        $price = countPrice($start_date, $end_date, $rooms);
+
+        if ($price > 0) {
+            $sql = "INSERT INTO reservations (name, email, phone, room_amount, start_date, end_date, price) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssissi", $name, $email, $phone, $rooms, $start_date, $end_date, $price);
+
+            if ($stmt->execute()) {
+                echo "<p class='text-center text-neutral-300'>You reservation has been accepted</p>";
+            } else {
+                echo "Error: " . $stmt->error;
+            }
+
+            $stmt->close();
+        }
     }
+
     ?>
 
     <?php require 'components/footer.php'; ?>
 </body>
 
 </html>
-
-
-
-
-
-
-<?php
-// class Book
-// {
-
-// private $rooms = [
-// 'room1',
-// 'room2',
-// 'room3',
-// ];
-
-// private $roomPrice = 500;
-
-// private $total;
-
-// private $days = 1;
-
-// function countPrice($rooms)
-// {
-// $this->total = $this->roomPrice * $rooms * $this->days;
-// return $this->total;
-// }
-// }
-
-// echo (new Book())->countPrice(3);
-?>
