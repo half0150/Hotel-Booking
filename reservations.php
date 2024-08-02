@@ -3,7 +3,6 @@ include 'db.php';
 
 $sql = "SELECT * FROM reservations";
 $result = $conn->query($sql);
-
 ?>
 
 <!DOCTYPE html>
@@ -17,56 +16,61 @@ $result = $conn->query($sql);
     <script src="tailwind.config.js"></script>
 </head>
 
-<body class="bg-slate-800">
-    <section>
+<body class="bg-slate-800 text-neutral-300">
+    <header>
         <?php require 'components/navbar.php'; ?>
-        <h1 class="text-4xl text-center font-bold text-neutral-300 p-4">Reservations</h1>
-    </section>
-    <section class="flex justify-center items-center p-4">
-        <table class="table-auto border-collapse border border-slate-400">
-            <thead>
-                <tr>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">ID</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Name</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Email</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Phone</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Room Amount</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Start Date</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">End Date</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Paid</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Done</th>
-                    <th class="border text-neutral-300 border-slate-300 px-4 py-2">Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['id'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['name'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['email'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['phone'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['room_amount'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['start_date'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['end_date'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['paid'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['done'] . "</td>";
-                        echo "<td class='border text-neutral-300 border-slate-300 px-4 py-2'>" . $row['price'] . " dkk" . "</td>";
-                        echo "</tr>";
+    </header>
+    <main class="p-4">
+        <h1 class="text-4xl font-bold text-center mb-6">Reservations</h1>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-600">
+                <thead class="bg-slate-700">
+                    <tr>
+                        <?php
+                        $headers = [
+                            'ID', 'Name', 'Email', 'Phone', 'Room Amount', 'Start Date', 'End Date', 'Paid', 'Done', 'Price', 'Actions'
+                        ];
+                        foreach ($headers as $header) {
+                            echo "<th class='px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider'>{$header}</th>";
+                        }
+                        ?>
+                    </tr>
+                </thead>
+
+                <tbody class="bg-slate-800 divide-y divide-slate-700">
+                    <?php
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>";
+                            foreach ($row as $key => $value) {
+                                $value = htmlspecialchars($value);
+                                if ($key === 'price') {
+                                    echo "<td class='px-6 py-4 text-sm font-medium text-neutral-300'>{$value} dkk</td>";
+                                } else {
+                                    echo "<td class='px-6 py-4 text-sm text-neutral-300'>{$value}</td>";
+                                }
+                            }
+                            echo "<td class='px-6 py-4 text-sm text-right'>
+                                    <div class='flex justify-end space-x-2'>
+                                        <button class='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'>Paid</button>
+                                        <button class='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Done</button>
+                                    </div>
+                                  </td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='11' class='px-6 py-4 text-center text-sm text-neutral-400'>No reservations found</td></tr>";
                     }
-                } else {
-                    echo "<tr><td colspan='8' class='border border-slate-300 px-4 py-2 text-center'>No reservations found</td></tr>";
-                }
-                ?>
-            </tbody>
-        </table>
-    </section>
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </main>
 
     <?php require 'components/footer.php'; ?>
-</body>
 
-</html>
+    <?php $conn->close(); ?>
 </body>
 
 </html>

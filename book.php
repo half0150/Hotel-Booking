@@ -9,81 +9,93 @@
     <script src="tailwind.config.js"></script>
 </head>
 
-<body class="bg-slate-800">
-    <section>
-        <?php require 'components/navbar.php'; ?>
-        <h1 class="text-4xl text-center font-bold text-neutral-300 p-4">Book your room</h1>
-    </section>
-    <section>
-        <form action="" method="post" class="flex flex-col justify-center items-center p-4">
-            <label class="text-neutral-300 text-lg">Name</label>
-            <input type="text" name="name" class="p-2 m-2 rounded-lg" required>
-            <label class="text-neutral-300 text-lg">Email</label>
-            <input type="email" name="email" class="p-2 m-2 rounded-lg" required>
-            <label class="text-neutral-300 text-lg">Phone</label>
-            <input type="tel" name="phone" class="p-2 m-2 rounded-lg" required>
-            <label for="rooms" class="text-neutral-300 text-lg">Number of rooms:</label>
-            <input type="number" name="rooms" id="rooms" class="p-2 m-2 rounded-lg" required>
-            <label for="start_date" class="text-neutral-300 text-lg">Start:</label>
-            <input type="date" name="start_date" id="start_date" class="p-2 m-2 rounded-lg" required>
-            <label for="end_date" class="text-neutral-300 text-lg">End:</label>
-            <input type="date" name="end_date" id="end_date" class="p-2 m-2 rounded-lg" required>
-            <button type="submit" class="text-2xl font-bold bg-slate-50 rounded-lg p-2">Book</button>
-        </form>
-    </section>
+<body class="bg-slate-800 text-neutral-300">
+    <?php require 'components/navbar.php'; ?>
 
-    <?php
-    function countPrice($startDate, $endDate, $rooms)
-    {
-        $dayPrice = 500;
+    <main class="p-4 md:p-8">
+        <section class="mb-12 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Book Your Room</h1>
+            <form action="" method="post" class="max-w-lg mx-auto bg-slate-700 p-6 rounded-lg shadow-lg">
+                <div class="mb-4">
+                    <label for="name" class="block text-lg font-medium">Name</label>
+                    <input type="text" id="name" name="name" class="mt-1 block w-full p-2 rounded-lg border border-slate-500 bg-slate-600 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-lg font-medium">Email</label>
+                    <input type="email" id="email" name="email" class="mt-1 block w-full p-2 rounded-lg border border-slate-500 bg-slate-600 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="phone" class="block text-lg font-medium">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="mt-1 block w-full p-2 rounded-lg border border-slate-500 bg-slate-600 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="rooms" class="block text-lg font-medium">Number of Rooms</label>
+                    <input type="number" id="rooms" name="rooms" class="mt-1 block w-full p-2 rounded-lg border border-slate-500 bg-slate-600 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="start_date" class="block text-lg font-medium">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="mt-1 block w-full p-2 rounded-lg border border-slate-500 bg-slate-600 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="end_date" class="block text-lg font-medium">End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="mt-1 block w-full p-2 rounded-lg border border-slate-500 bg-slate-600 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <button type="submit" class="w-full text-2xl font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3">Book Now</button>
+            </form>
+        </section>
 
-        if ($rooms > 0) {
-            $startDate = new DateTime($startDate);
-            $endDate = new DateTime($endDate);
+        <section class="text-center mt-8">
+            <?php
+            function countPrice($startDate, $endDate, $rooms)
+            {
+                $dayPrice = 500;
 
-            $diff = $startDate->diff($endDate)->format("%a");
+                if ($rooms > 0) {
+                    $startDate = new DateTime($startDate);
+                    $endDate = new DateTime($endDate);
 
-            echo "<p class='text-center text-neutral-300'>Days difference: " . $diff . "</p>";
-            echo "<br>";
+                    $diff = $startDate->diff($endDate)->format("%a");
 
-            $total = ($diff * $dayPrice) * $rooms;
-            echo "<p class='text-center text-neutral-300'>Total price: dkk " . $total . "</p>";
+                    echo "<p class='text-lg text-neutral-300 mb-2'>Days difference: " . $diff . "</p>";
+                    $total = ($diff * $dayPrice) * $rooms;
+                    echo "<p class='text-lg text-neutral-300'>Total price: dkk " . $total . "</p>";
 
-            return $total;
-        } else {
-            echo "<p class='text-center text-neutral-300'>You must book at least one room</p>";
-            return 0;
-        }
-    }
-
-    include 'db.php';
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-        $phone = $_POST['phone'];
-        $rooms = intval($_POST['rooms']);
-        $start_date = $_POST['start_date'];
-        $end_date = $_POST['end_date'];
-        $price = countPrice($start_date, $end_date, $rooms);
-
-        if ($price > 0) {
-            $sql = "INSERT INTO reservations (name, email, phone, room_amount, start_date, end_date, price) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssissi", $name, $email, $phone, $rooms, $start_date, $end_date, $price);
-
-            if ($stmt->execute()) {
-                echo "<p class='text-center text-neutral-300'>You reservation has been accepted</p>";
-            } else {
-                echo "Error: " . $stmt->error;
+                    return $total;
+                } else {
+                    echo "<p class='text-lg text-neutral-300'>You must book at least one room</p>";
+                    return 0;
+                }
             }
 
-            $stmt->close();
-        }
-    }
+            include 'db.php';
 
-    ?>
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $name = $_POST['name'];
+                $email = $_POST['email'];
+                $phone = $_POST['phone'];
+                $rooms = intval($_POST['rooms']);
+                $start_date = $_POST['start_date'];
+                $end_date = $_POST['end_date'];
+                $price = countPrice($start_date, $end_date, $rooms);
+
+                if ($price > 0) {
+                    $sql = "INSERT INTO reservations (name, email, phone, room_amount, start_date, end_date, price) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("sssissi", $name, $email, $phone, $rooms, $start_date, $end_date, $price);
+
+                    if ($stmt->execute()) {
+                        echo "<p class='text-lg text-neutral-300 mt-4'>Your reservation has been accepted</p>";
+                    } else {
+                        echo "<p class='text-lg text-red-400 mt-4'>Error: " . $stmt->error . "</p>";
+                    }
+
+                    $stmt->close();
+                }
+            }
+            ?>
+        </section>
+    </main>
 
     <?php require 'components/footer.php'; ?>
 </body>
