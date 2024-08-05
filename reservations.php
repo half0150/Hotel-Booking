@@ -1,7 +1,9 @@
 <?php
 include 'db.php';
 
-$sql = "SELECT * FROM reservations";
+$sql = "SELECT r.id, u.name, u.email, u.phone, r.room_amount, r.start_date, r.end_date, r.paid, r.done, r.price
+        FROM reservations r
+        JOIN users u ON r.user_id = u.id";
 $result = $conn->query($sql);
 ?>
 

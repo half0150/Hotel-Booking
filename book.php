@@ -79,18 +79,31 @@
                 $price = countPrice($start_date, $end_date, $rooms);
 
                 if ($price > 0) {
-                    $sql = "INSERT INTO reservations (name, email, phone, room_amount, start_date, end_date, price) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    // Insert into users table
+                    $sqlUser = "INSERT INTO users (name, email, phone) VALUES (?, ?, ?)";
+                    $stmtUser = $conn->prepare($sqlUser);
+                    $stmtUser->bind_param("sss", $name, $email, $phone);
 
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("sssissi", $name, $email, $phone, $rooms, $start_date, $end_date, $price);
+                    if ($stmtUser->execute()) {
+                        $user_id = $stmtUser->insert_id;
 
-                    if ($stmt->execute()) {
-                        echo "<p class='text-lg text-neutral-300 mt-4'>Your reservation has been accepted</p>";
+                        // Insert into reservations table
+                        $sqlReservation = "INSERT INTO reservations (user_id, room_amount, start_date, end_date, price) VALUES (?, ?, ?, ?, ?)";
+                        $stmtReservation = $conn->prepare($sqlReservation);
+                        $stmtReservation->bind_param("iissi", $user_id, $rooms, $start_date, $end_date, $price);
+
+                        if ($stmtReservation->execute()) {
+                            echo "<p class='text-lg text-neutral-300 mt-4'>Your reservation has been accepted</p>";
+                        } else {
+                            echo "<p class='text-lg text-red-400 mt-4'>Error: " . $stmtReservation->error . "</p>";
+                        }
+
+                        $stmtReservation->close();
                     } else {
-                        echo "<p class='text-lg text-red-400 mt-4'>Error: " . $stmt->error . "</p>";
+                        echo "<p class='text-lg text-red-400 mt-4'>Error: " . $stmtUser->error . "</p>";
                     }
 
-                    $stmt->close();
+                    $stmtUser->close();
                 }
             }
             ?>
