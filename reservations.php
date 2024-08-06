@@ -1,6 +1,17 @@
 <?php
 include 'db.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $reservationId = intval($_POST['reservation_id']);
+    if (isset($_POST['mark_paid'])) {
+        $sql = "UPDATE reservations SET paid = 1 WHERE id = $reservationId";
+        $conn->query($sql);
+    } elseif (isset($_POST['mark_done'])) {
+        $sql = "UPDATE reservations SET done = 1 WHERE id = $reservationId";
+        $conn->query($sql);
+    }
+}
+
 $sql = "SELECT r.id, u.name, u.email, u.phone, r.room_amount, r.start_date, r.end_date, r.paid, r.done, r.price
         FROM reservations r
         JOIN users u ON r.user_id = u.id";
@@ -49,14 +60,22 @@ $result = $conn->query($sql);
                                 $value = htmlspecialchars($value);
                                 if ($key === 'price') {
                                     echo "<td class='px-6 py-4 text-sm font-medium text-neutral-300'>{$value} dkk</td>";
+                                } elseif ($key === 'paid' || $key === 'done') {
+                                    echo "<td class='px-6 py-4 text-sm text-neutral-300'>" . ($value ? '1' : '0') . "</td>";
                                 } else {
                                     echo "<td class='px-6 py-4 text-sm text-neutral-300'>{$value}</td>";
                                 }
                             }
                             echo "<td class='px-6 py-4 text-sm text-right'>
                                     <div class='flex justify-end space-x-2'>
-                                        <button class='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'>Paid</button>
-                                        <button class='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Done</button>
+                                        <form method='post' action=''>
+                                            <input type='hidden' name='reservation_id' value='{$row['id']}'>
+                                            <button type='submit' name='mark_paid' class='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'>Paid</button>
+                                        </form>
+                                        <form method='post' action=''>
+                                            <input type='hidden' name='reservation_id' value='{$row['id']}'>
+                                            <button type='submit' name='mark_done' class='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Done</button>
+                                        </form>
                                     </div>
                                   </td>";
                             echo "</tr>";
